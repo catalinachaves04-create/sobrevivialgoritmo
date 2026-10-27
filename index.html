@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Elige tu propia aventura: sobreviví al algoritmo</title>
+<style>
+:root {
+  --bg: #efe0c8;
+  --panel: #fbf3e4;
+  --ink: #3a2314;
+  --muted: #7a5a40;
+  --accent: #a8691c;
+  --accent-ink: #fff8ea;
+  --floor: #e3cba6;
+  --wall: #5a3a24;
+  --line: #cfb48c;
+}
+html, body { height: 100%; margin: 0; padding: 0; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Georgia, serif;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* Pantallas superpuestas */
+.screen-view {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  background: var(--bg);
+  z-index: 50;
+}
+#start-screen { background: radial-gradient(circle at center, var(--panel) 0%, var(--bg) 100%); z-index: 60; }
+#intro-screen { background: #140a04; z-index: 70; }
+
+.title-card {
+  background: var(--panel);
+  border: 3px solid var(--accent);
+  border-radius: 16px;
+  padding: 32px 24px;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+h1.main-title { font-size: 26px; margin: 0 0 12px; color: var(--accent); }
+p.subtitle { font-size: 16px; color: var(--muted); margin: 0 0 24px; }
+
+.video-wrapper {
+  max-width: 640px;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 3px solid var(--accent);
+  background: #000;
+  margin-bottom: 20px;
+}
+.video-wrapper video { width: 100%; height: auto; display: block; }
+
+/* Contenedor del Juego */
+#game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 720px;
+  padding: 10px;
+}
+
+header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+h1.game-head { font-size: 20px; margin: 0; }
+.hud { display: flex; gap: 10px; align-items: center; font-size: 15px; }
+.chip { background: var(--panel); border: 2px solid var(--line); border-radius: 999px; padding: 3px 12px; font-weight: 700; }
+button { font: inherit; cursor: pointer; color: inherit; }
+.btn {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+canvas {
+  border: 3px solid var(--wall);
+  border-radius: 8px;
+  background: var(--floor);
+  touch-action: none;
+  max-width: 100%;
+  display: block;
+}
+#msg { margin: 6px 0 0; color: var(--muted); font-size: 15px; text-align: center; min-height: 22px; }
+
+.pad {
+  display: none;
+  grid-template-columns: repeat(3,56px);
+  grid-template-rows: repeat(2,56px);
+  gap: 6px;
+  margin-top: 6px;
+}
+.pad button { background: var(--panel); border: 2px solid var(--line); border-radius: 12px; font-size: 22px; touch-action: none; }
+.pad .u { grid-column: 2; }
+@media (pointer:coarse){ .pad { display: grid; } }
+
+/* Modales */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20,10,4,.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 100;
+}
+.card {
+  background: var(--panel);
+  border: 3px solid var(--accent);
+  border-radius: 16px;
+  max-width: 520px;
+  width: 100%;
+  padding: 22px;
+  max-height: 92vh;
+  overflow: auto;
+}
+.tag { font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+.card p { margin: 0 0 16px; font-size: 18px; }
+.opts { display: grid; gap: 10px; }
+.opt { display: flex; gap: 12px; text-align: left; background: transparent; border: 2px solid var(--line); border-radius: 10px; padding: 10px 12px; align-items: center; }
+.opt b { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; }
+.bad .tag { color: #d0533d; }
+.extra { border: 2px dashed var(--accent); border-radius: 12px; padding: 14px; margin: 0 0 16px; text-align: center; }
+.qr { display: inline-block; background: #fff; padding: 10px; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<!-- 1. Portada -->
+<div id="start-screen" class="screen-view">
+  <div class="title-card">
+    <div style="font-size: 40px; margin-bottom: 8px;">☕</div>
+    <h1 class="main-title">Elige tu propia aventura:<br>sobreviví al algoritmo</h1>
+    <p class="subtitle">Defendé la tradición de tu cafetería frente a las demandas de las redes sociales.</p>
+    <button class="btn" id="start-btn" type="button">Comenzar Aventura ➔</button>
+  </div>
+</div>
+
+<!-- 2. Video Cutscene -->
+<div id="intro-screen" class="screen-view" style="display: none;">
+  <div class="video-wrapper">
+    <video id="intro-video" autoplay muted loop playsinline controls>
+      <source src="intro_cutscenecoffee.mp4" type="video/mp4">
+      Tu navegador no soporta reproducción de video.
+    </video>
+  </div>
+  <button class="btn" id="play-game-btn" type="button">Saltar e ir al juego ➔</button>
+</div>
+
+<!-- 3. Juego de Laberinto -->
+<div id="game-container">
+  <header>
+    <h1 class="game-head">☕ Laberinto del café</h1>
+    <div class="hud">
+      <span class="chip" id="hud">Granos 0/4</span>
+      <button class="btn" id="restart" style="padding: 4px 12px; font-size: 14px;" type="button">Reiniciar</button>
+    </div>
+  </header>
+
+  <canvas id="cv" aria-label="Laberinto interactivo"></canvas>
+  <p id="msg" aria-live="polite"></p>
+
+  <div class="pad" aria-hidden="true">
+    <button class="u" data-d="0" type="button">▲</button>
+    <button data-d="3" style="grid-row:2;grid-column:1" type="button">◀</button>
+    <button data-d="2" style="grid-row:2;grid-column:2" type="button">▼</button>
+    <button data-d="1" style="grid-row:2;grid-column:3" type="button">▶</button>
+  </div>
+</div>
+
+<!-- Modal de Decisiones -->
+<div class="overlay" id="modal" hidden>
+  <div class="card">
+    <div class="tag" id="mtag"></div>
+    <p id="mq"></p>
+    <div id="mextra"></div>
+    <div class="opts" id="mopts"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+var NEXT_STORY_URL = "https://ejemplo.com/siguiente-historia"; 
+var N = 15, cv = document.getElementById("cv"), ctx = cv.getContext("2d");
+var DIRS = [[-1,0],[0,1],[1,0],[0,-1]];
+var KEYS = { ArrowUp:0, ArrowRight:1, ArrowDown:2, ArrowLeft:3 };
+
+var NODES = {
+  n1: { q: "Llega un grupo de chicas jóvenes a la cafetería pero se van porque no les gusta la estética del lugar. ¿Qué hacés?",
+    o: [["Me mantengo así.", "close"], ["Cambio la estética o el ambiente.", "close"]] },
+  n2: { q: "Una cliente habitual te sugiere que te contactes con Sofía, una influencer que se está haciendo su lugar en las redes sociales y puede ayudarte a expandir tu público.",
+    o: [["No le escribo y resuelvo sola.", "b:3A"], ["Me contacto con ella para pedirle ayuda.", "b:3B"]] },
+  n3a: { q: "Busco inspirarme en otra cafetería pero me critican porque se parece mucho y no tiene identidad propia. Me cancelan en redes.",
+    o: [["Cierro la cafetería.", "F1"], ["Me contacto con Sofía la influencer.", "node:n3b"]] },
+  n3b: { q: "Sofía hace el contenido pero no le va bien, se llena de comentarios de personas diciendo que el lugar se ve feo y sin identidad.",
+    o: [["La echo y busco otra solución.", "b:4A"], ["Hago una refacción del lugar y mejoro el menú.", "b:4B"]] },
+  n4a: { q: "Tengo que echar a los empleados porque no me cierran los números. Los clientes habituales ya no vienen y eligen ir a la competencia.",
+    o: [["Le ofrezco a una cliente joven y CM que me maneje las redes.", "F1"], ["Sigo como estoy e intento resolver sola.", "F1"]] },
+  n4b: { q: "Estás considerando cerrar porque estás invirtiendo mucho dinero y necesitas ver resultados rápido.",
+    o: [["Sigo invirtiendo, confío en el proceso.", "F2"], ["Cierro el negocio.", "F1"]] }
+};
+
+var ENDS = {
+  1: "Te fundiste. La cafetería cierra.",
+  2: "Sofía vuelve a hacer el contenido con el local refaccionado y una idea más atractiva. El video tiene muy buenos resultados. La cafetería se mantiene en pie."
+};
+
+var W = [], beans = [], path = [], S = 400, held = [], mv = null, pr = 0, pc = 0, branch = null, pend = 0, modalOn = false, over = false, curBean = 0, collected = 0, cell = 40, C = {floor: "#e3cba6", wall: "#5a3a24", accent: "#a8691c"}, last = 0;
+var videoEl = document.getElementById("intro-video");
+
+// Inicialización segura garantizada
+window.addEventListener("DOMContentLoaded", function() {
+  document.getElementById("start-btn").addEventListener("click", function() {
+    var startScreen = document.getElementById("start-screen");
+    var introScreen = document.getElementById("intro-screen");
+    if(startScreen) startScreen.style.display = "none";
+    if(introScreen) introScreen.style.display = "flex";
+    if(videoEl) {
+      videoEl.currentTime = 0;
+      videoEl.play().catch(function(e){ console.log("Autoplay:", e); });
+    }
+  });
+
+  document.getElementById("play-game-btn").addEventListener("click", function() {
+    if(videoEl) videoEl.pause();
+    var introScreen = document.getElementById("intro-screen");
+    if(introScreen) introScreen.style.display = "none";
+    resize();
+    newGame();
+  });
+});
+
+function gen(){
+  var len;
+  do {
+    W = []; for (var r = 0; r < N; r++){ W[r] = []; for (var c = 0; c < N; c++) W[r][c] = [1,1,1,1]; }
+    var seen = {}, st = [[0,0]]; seen["0,0"] = 1;
+    while (st.length){
+      var p = st[st.length-1], opts = [];
+      for (var d = 0; d < 4; d++){ var nr = p[0]+DIRS[d][0], nc = p[1]+DIRS[d][1];
+        if (nr >= 0 && nc >= 0 && nr < N && nc < N && !seen[nr+","+nc]) opts.push([d,nr,nc]); }
+      if (!opts.length){ st.pop(); continue; }
+      var o = opts[Math.floor(Math.random()*opts.length)];
+      W[p[0]][p[1]][o[0]] = 0; W[o[1]][o[2]][(o[0]+2)%4] = 0; seen[o[1]+","+o[2]] = 1; st.push([o[1],o[2]]);
+    }
+    var par = { "0,0": null }, q = [[0,0]];
+    for (var i = 0; i < q.length; i++){ var a = q[i];
+      for (var d2 = 0; d2 < 4; d2++){ if (W[a[0]][a[1]][d2]) continue;
+        var b = [a[0]+DIRS[d2][0], a[1]+DIRS[d2][1]], k = b[0]+","+b[1];
+        if (!(k in par)){ par[k] = a; q.push(b); } } }
+    path = []; var x = [N-1,N-1];
+    while (x){ path.unshift(x); x = par[x[0]+","+x[1]]; }
+    len = path.length;
+  } while (len < 45);
+  beans = [1,2,3,4].map(function(k){ var p = path[Math.floor(len*k/5)]; return { r: p[0], c: p[1], got: false }; });
+}
+
+function newGame(){
+  gen(); pr = 0; pc = 0; mv = null; held = []; branch = null; pend = 0; modalOn = false; over = false; collected = 0;
+  var modal = document.getElementById("modal");
+  if(modal) modal.hidden = true;
+  setMsg("Movete con las flechas y encontrá los 4 granos de café.");
+  hud();
+}
+
+function hud(){ document.getElementById("hud").textContent = "Granos " + collected + "/4"; }
+function setMsg(t){ document.getElementById("msg").textContent = t; }
+
+function resize(){
+  var coarse = matchMedia("(pointer:coarse)").matches;
+  S = Math.max(240, Math.min(window.innerWidth - 30, window.innerHeight - (coarse ? 280 : 160), 720));
+  var dpr = window.devicePixelRatio || 1;
+  cv.style.width = cv.style.height = S + "px"; cv.width = cv.height = Math.round(S * dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0); cell = S / N;
+}
+
+function loadColors(){
+  var cs = getComputedStyle(document.documentElement);
+  var f = cs.getPropertyValue("--floor").trim(); if(f) C.floor = f;
+  var w = cs.getPropertyValue("--wall").trim(); if(w) C.wall = w;
+  var a = cs.getPropertyValue("--accent").trim(); if(a) C.accent = a;
+}
+
+function tryMove(d){
+  var r = Math.round(pr), c = Math.round(pc);
+  if (!W[r] || !W[r][c] || W[r][c][d]) return;
+  mv = { fr: r, fc: c, tr: r + DIRS[d][0], tc: c + DIRS[d][1], t: 0 };
+}
+
+function arrive(){
+  pr = mv.tr; pc = mv.tc; mv = null;
+  for (var i = 0; i < beans.length; i++){
+    var b = beans[i];
+    if (!b.got && b.r === pr && b.c === pc){ b.got = true; collected++; hud(); openBean(i); return; }
+  }
+  if (pr === N-1 && pc === N-1 && pend === 2) ending(2);
+}
+
+function show(tag, text, opts, bad){
+  modalOn = true; held = [];
+  var m = document.getElementById("modal"); m.hidden = false;
+  m.firstElementChild.className = "card" + (bad ? " bad" : "");
+  document.getElementById("mtag").textContent = tag;
+  document.getElementById("mq").textContent = text;
+  document.getElementById("mextra").innerHTML = "";
+  var box = document.getElementById("mopts"); box.innerHTML = "";
+  opts.forEach(function(o, i){
+    var b = document.createElement("button"); b.className = "opt"; b.type = "button";
+    b.innerHTML = "<b>" + (i+1) + "</b><span></span>"; b.lastChild.textContent = o[0];
+    b.onclick = o[1]; box.appendChild(b);
+  });
+  if(box.firstChild) box.firstChild.focus();
+}
+
+function closeModal(){ document.getElementById("modal").hidden = true; modalOn = false; }
+
+function openBean(i){
+  curBean = i;
+  var id = ["n1","n2", branch === "3A" ? "n3a" : "n3b", branch === "4A" ? "n4a" : "n4b"][i];
+  node(id);
+}
+
+function node(id){
+  var n = NODES[id];
+  show("Grano " + (curBean+1) + " de 4", n.q, n.o.map(function(o){ return [o[0], function(){ pick(o[1]); }]; }));
+}
+
+function pick(t){
+  if (t === "close") closeModal();
+  else if (t.indexOf("node:") === 0) node(t.slice(5));
+  else if (t.indexOf("b:") === 0){ branch = t.slice(2); closeModal(); }
+  else if (t === "F1") ending(1);
+  else if (t === "F2"){ pend = 2; closeModal(); setMsg("¡Buen camino! Llegá a la salida (OUT)."); }
+}
+
+function ending(n){
+  over = true;
+  show("Resultado final " + n, ENDS[n], [["Jugar de nuevo", newGame]], n === 1);
+  var x = document.getElementById("mextra");
+  if (n === 1){
+    x.innerHTML = '<div class="extra"><p>Te ofrecen 1 mes gratis en la plataforma.</p><button class="btn" id="free-btn" type="button">Aceptar</button></div>';
+    document.getElementById("free-btn").onclick = function(){ this.parentNode.querySelector("p").textContent = "¡Activado!"; this.remove(); };
+  } else {
+    x.innerHTML = '<div class="extra"><div class="qr" id="qr"></div><p>Escaneá el QR.</p></div>';
+    try { new QRCode(document.getElementById("qr"), { text: NEXT_STORY_URL, width: 130, height: 130 }); } catch (e){}
+  }
+}
+
+function frame(t){
+  var dt = Math.min(50, t - last); last = t;
+  var isIntroVisible = document.getElementById("intro-screen").style.display !== 'none';
+  var isStartVisible = document.getElementById("start-screen").style.display !== 'none';
+  
+  if (!modalOn && !over && !isIntroVisible && !isStartVisible){
+    if (!mv && held.length) tryMove(held[held.length-1]);
+    if (mv){ mv.t += dt / 130; if (mv.t >= 1) arrive(); }
+  }
+  draw(t);
+  requestAnimationFrame(frame);
+}
+
+function draw(t){
+  loadColors();
+  ctx.clearRect(0,0,S,S); 
+  ctx.fillStyle = C.floor; 
+  ctx.fillRect(0,0,S,S);
+
+  if (!W || !W.length) return;
+
+  var r, c;
+  for (r = 0; r < N; r++) for (c = 0; c < N; c++) if ((r+c) % 2){ ctx.fillStyle = "rgba(0,0,0,.05)"; ctx.fillRect(c*cell, r*cell, cell, cell); }
+  
+  ctx.font = "bold " + cell*0.26 + "px Georgia,serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillStyle = "#2f9e57"; ctx.fillRect(0, 0, cell, cell);
+  ctx.fillStyle = "#c8402e"; ctx.fillRect((N-1)*cell, (N-1)*cell, cell, cell);
+  ctx.fillStyle = "#fff"; ctx.fillText("IN", cell/2, cell*0.2); ctx.fillText("OUT", (N-0.5)*cell, (N-1)*cell + cell*0.2);
+  
+  ctx.strokeStyle = C.wall; ctx.lineWidth = Math.max(2, cell*0.09); ctx.lineCap = "round"; ctx.beginPath();
+  for (r = 0; r < N; r++) for (c = 0; c < N; c++){ var w = W[r][c], x = c*cell, y = r*cell;
+    if (w[0]){ ctx.moveTo(x,y); ctx.lineTo(x+cell,y); } if (w[1]){ ctx.moveTo(x+cell,y); ctx.lineTo(x+cell,y+cell); }
+    if (w[2]){ ctx.moveTo(x,y+cell); ctx.lineTo(x+cell,y+cell); } if (w[3]){ ctx.moveTo(x,y); ctx.lineTo(x,y+cell); } }
+  ctx.stroke();
+
+  if (beans){
+    beans.forEach(function(b){
+      if (b.got) return;
+      var k = 1 + 0.12*Math.sin(t/250), cx = (b.c+0.5)*cell, cy = (b.r+0.5)*cell;
+      ctx.save(); ctx.translate(cx, cy); ctx.rotate(-0.6); ctx.scale(k,k);
+      ctx.fillStyle = "#6b3a1e"; ctx.beginPath(); ctx.ellipse(0,0,cell*0.25,cell*0.17,0,0,7); ctx.fill();
+      ctx.strokeStyle = "#e9c98f"; ctx.lineWidth = Math.max(1.5, cell*0.04);
+      ctx.beginPath(); ctx.moveTo(-cell*0.22,0); ctx.quadraticCurveTo(0,-cell*0.1,cell*0.22,0); ctx.stroke(); ctx.restore();
+    });
+  }
+
+  var fr = pr, fc = pc;
+  if (mv){ var e = mv.t < 1 ? mv.t : 1; fr = mv.fr + (mv.tr - mv.fr)*e; fc = mv.fc + (mv.tc - mv.fc)*e; }
+  ctx.font = cell*0.62 + "px serif"; ctx.fillStyle = "#000";
+  ctx.fillText("☕", (fc+0.5)*cell, (fr+0.54)*cell);
+}
+
+document.addEventListener("keydown", function(e){
+  if (modalOn){ var i = parseInt(e.key, 10) - 1, bs = document.querySelectorAll("#mopts .opt"); if (bs[i]) bs[i].click(); return; }
+  if (e.key in KEYS){ e.preventDefault(); var d = KEYS[e.key]; if (held.indexOf(d) < 0) held.push(d); }
+});
+document.addEventListener("keyup", function(e){
+  if (e.key in KEYS) held = held.filter(function(d){ return d !== KEYS[e.key]; });
+});
+document.querySelectorAll(".pad button").forEach(function(b){
+  var d = +b.dataset.d;
+  b.addEventListener("pointerdown", function(e){ e.preventDefault(); if (held.indexOf(d) < 0) held.push(d); });
+  ["pointerup","pointerleave","pointercancel"].forEach(function(n){ b.addEventListener(n, function(){ held = held.filter(function(x){ return x !== d; }); }); });
+});
+document.getElementById("restart").onclick = newGame;
+window.addEventListener("resize", resize);
+
+gen();
+resize();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
