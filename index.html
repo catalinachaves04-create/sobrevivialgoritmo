@@ -29,6 +29,7 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
+  min-height: 100dvh;
   overflow: hidden;
 }
 
@@ -111,6 +112,9 @@ canvas {
   touch-action: none;
   max-width: 100%;
   display: block;
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 #msg { margin: 6px 0 0; color: var(--muted); font-size: 15px; text-align: center; min-height: 22px; }
 
@@ -121,9 +125,9 @@ canvas {
   gap: 6px;
   margin-top: 6px;
 }
-.pad button { background: var(--panel); border: 2px solid var(--line); border-radius: 12px; font-size: 22px; touch-action: none; }
+.pad button { background: var(--panel); border: 2px solid var(--line); border-radius: 12px; font-size: 22px; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
 .pad .u { grid-column: 2; }
-@media (pointer:coarse){ .pad { display: grid; } }
+@media (pointer:coarse), (hover:none){ .pad { display: grid; } }
 
 /* Modales */
 .overlay {
@@ -153,7 +157,44 @@ canvas {
 .opt b { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; }
 .bad .tag { color: #d0533d; }
 .extra { border: 2px dashed var(--accent); border-radius: 12px; padding: 14px; margin: 0 0 16px; text-align: center; }
-.qr { display: inline-block; background: #fff; padding: 10px; border-radius: 8px; }
+.qr { display: inline-block; background: #fff; padding: 10px; border-radius: 8px; margin: 8px 0 4px; }
+.qr img, .qr canvas { display: block; }
+.extra h2 { margin: 0 0 6px; font-size: 24px; }
+.extra p { margin: 0 0 12px; font-size: 17px; }
+.stage{position:relative;border:3px solid var(--accent);border-radius:14px;overflow:hidden;background:#4a2f1d}
+.stage svg.bg{display:block;width:100%;height:auto}
+.bar{position:absolute;left:0;top:0;height:5px;background:var(--accent);width:0;z-index:3}
+.wall{fill:#7a4f30}.floor{fill:#4a2f1d}.frame{fill:#3a2314}.sky{fill:#cfe3ea}.street{fill:#9c8c78}
+.counter{fill:#5a3a24}.ctop{fill:#a8733f}.mach{fill:#8f949a}.cup{fill:#f3e8d2}.shelf{fill:#3a2314}
+.steam path{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;opacity:0;animation:st 3s ease-in-out infinite}
+.steam path:nth-child(2){animation-delay:.9s}.steam path:nth-child(3){animation-delay:1.8s}
+@keyframes st{0%{opacity:0;transform:translateY(8px)}40%{opacity:.8}100%{opacity:0;transform:translateY(-22px)}}
+.sc{opacity:0;transition:opacity .6s;pointer-events:none}.sc.on{opacity:1}
+.bob{animation:bob 3s ease-in-out infinite}@keyframes bob{50%{transform:translateY(-3px)}}
+.on .clk{animation:pl 1.6s ease-in-out 3}@keyframes pl{50%{transform:scale(1.25)}}
+.on .drop{animation:dr 1.4s ease-in 1s both}@keyframes dr{0%{transform:translateY(-80px);opacity:0}20%{opacity:1}100%{transform:none;opacity:1}}
+.on .glow{animation:gl 2s ease both}@keyframes gl{from{opacity:0}to{opacity:.35}}
+.bub rect{fill:#fff6e3;stroke:#a8691c;stroke-width:2}.bub text{font:700 15px Georgia,serif;fill:#3a2314}
+.bub .x{fill:#c8402e;font-size:22px;opacity:0}
+.on .bub{animation:bb 5.6s ease-in-out both;animation-delay:var(--d)}
+.on .bub .x{animation:xx 5.6s both;animation-delay:var(--d)}
+@keyframes bb{0%{transform:translateX(260px);opacity:0}18%{transform:none;opacity:1}62%{transform:none;opacity:1}100%{transform:translate(-170px,-24px) rotate(-8deg);opacity:0}}
+@keyframes xx{0%,40%{opacity:0}55%,100%{opacity:1}}
+.on .wk{animation:wk 8s linear both;animation-delay:var(--d)}@keyframes wk{from{transform:translateX(0)}to{transform:translateX(420px)}}
+.on .gl{animation:gr 6.3s ease-in-out .3s both}@keyframes gr{0%{transform:none}35%,62%{transform:translateX(-250px)}100%{transform:translateX(60px)}}
+.on .bell{animation:bl .5s ease-in-out 2.2s 6}@keyframes bl{50%{transform:rotate(18deg)}}
+.cap{min-height:84px;font-size:21px;margin:0;text-align:center;max-width:62ch;align-self:center;transition:opacity .35s}
+.ictl{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
+.dots{display:flex;gap:7px}.dots i{width:10px;height:10px;border-radius:50%;background:var(--line)}.dots i.on{background:var(--accent)}
+.paused *{animation-play-state:paused!important}
+
+/* ===== Intro animada ===== */
+#intro-screen{--panel:#2e1d12;--ink:#f3e4c9;--muted:#b99b78;--accent:#e0ad4a;--accent-ink:#241505;--line:#4f3624;color:var(--ink);overflow-y:auto;justify-content:flex-start;padding-top:max(20px,env(safe-area-inset-top));padding-bottom:max(20px,env(safe-area-inset-bottom))}
+.intro-wrap{margin:auto;width:100%;max-width:860px;display:flex;flex-direction:column;gap:12px}
+.ib{background:var(--panel);color:var(--ink);border:2px solid var(--line);border-radius:10px;padding:8px 14px}
+.ib:focus-visible,#intro-screen .btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#intro-screen .btn{padding:10px 20px}
+@media (prefers-reduced-motion:reduce){#intro-screen *{animation:none!important;transition:none!important}#intro-screen .sc.on .bub}
 </style>
 </head>
 <body>
@@ -170,13 +211,23 @@ canvas {
 
 <!-- 2. Video Cutscene -->
 <div id="intro-screen" class="screen-view" style="display: none;">
-  <div class="video-wrapper">
-    <video id="intro-video" autoplay muted loop playsinline controls>
-      <source src="intro_cutscenecoffee.mp4" type="video/mp4">
-      Tu navegador no soporta reproducción de video.
-    </video>
+  <div class="intro-wrap">
+    <div class="stage" id="stage">
+      <div class="bar" id="bar"></div>
+      <svg class="bg" id="svg" viewBox="0 0 800 450" role="img" aria-label="Animación de la historia de la cafetería"></svg>
+    </div>
+    <p class="cap" id="cap" aria-live="polite"></p>
+    <div class="ictl">
+      <button class="ib" id="prev" aria-label="Anterior" type="button">◀</button>
+      <button class="ib" id="pp" type="button">⏸ Pausar</button>
+      <button class="ib" id="next" aria-label="Siguiente" type="button">▶</button>
+      <div class="dots" id="dots"></div>
+    </div>
+    <div class="ictl">
+      <button class="ib" id="again" type="button" hidden>Ver de nuevo</button>
+      <button class="btn" id="play-game-btn" type="button">Saltar e ir al juego ➔</button>
+    </div>
   </div>
-  <button class="btn" id="play-game-btn" type="button">Saltar e ir al juego ➔</button>
 </div>
 
 <!-- 3. Juego de Laberinto -->
@@ -212,7 +263,10 @@ canvas {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-var NEXT_STORY_URL = "https://ejemplo.com/siguiente-historia"; 
+var NEXT_STORY_URL = "https://ejemplo.com/siguiente-historia";
+// Cuando generes tu QR, subilo junto al HTML y poné acá su nombre (ej: "qr_siguiente_historia.png").
+// Mientras esté vacío se muestra un QR de ejemplo.
+var NEXT_STORY_QR_IMG = ""; 
 var N = 15, cv = document.getElementById("cv"), ctx = cv.getContext("2d");
 var DIRS = [[-1,0],[0,1],[1,0],[0,-1]];
 var KEYS = { ArrowUp:0, ArrowRight:1, ArrowDown:2, ArrowLeft:3 };
@@ -238,25 +292,117 @@ var ENDS = {
 };
 
 var W = [], beans = [], path = [], S = 400, held = [], mv = null, pr = 0, pc = 0, branch = null, pend = 0, modalOn = false, over = false, curBean = 0, collected = 0, cell = 40, C = {floor: "#e3cba6", wall: "#5a3a24", accent: "#a8691c"}, last = 0;
-var videoEl = document.getElementById("intro-video");
+
+// Controles: flechas en la compu, deslizar el dedo (o botones) en el celu
+var want = -1, swDir = -1, sw = null;
+function isTouch(){ return matchMedia("(pointer:coarse)").matches || matchMedia("(hover:none)").matches; }
+function ctrlHint(){
+  return isTouch()
+    ? "Deslizá el dedo sobre el laberinto (o usá los botones) y encontrá los 4 granos de café."
+    : "Movete con las flechas del teclado y encontrá los 4 granos de café.";
+}
+
+// ===== Intro animada (reemplaza al video) =====
+(function(){
+function ch(o){
+  return '<g>' + (o.back || "") + '<path d="M-22 0C-22-40-14-56 0-56S22-40 22 0z" fill="' + o.top + '"/>' + (o.acc || "") +
+    '<circle cy="-70" r="14" fill="' + o.sk + '"/><path d="M-15-72a15 15 0 0 1 30 0c-6-6-24-6-30 0z" fill="' + o.hair + '"/>' +
+    '<circle cx="-5" cy="-69" r="1.7" fill="#2a1a10"/><circle cx="5" cy="-69" r="1.7" fill="#2a1a10"/>' +
+    '<path d="M-4-63q4 3 8 0" stroke="#2a1a10" fill="none" stroke-width="1.4"/>' + (o.front || "") + '</g>';
+}
+var PH = '<rect x="14" y="-40" width="8" height="14" rx="2" fill="#1d1d1d"/>';
+var P = {
+  owner: { sk: "#e8b48a", hair: "#3b2314", top: "#8a5a33", back: '<circle cy="-88" r="7" fill="#3b2314"/>', acc: '<path d="M-12-46h24v46h-24z" fill="#efe2c8"/>' },
+  ruben: { sk: "#d9a47c", hair: "#c9c9c9", top: "#3f5f73", acc: '<rect x="10" y="-34" width="16" height="22" fill="#e9e4d4" transform="rotate(12 18 -23)"/>' },
+  marta: { sk: "#c98e66", hair: "#7a3b2e", top: "#6d8f5e", acc: '<rect x="-14" y="-58" width="28" height="7" rx="3" fill="#c0463a"/>' },
+  pan:   { sk: "#f1c9a5", hair: "#5a3a24", top: "#f4f1ea", front: '<rect x="-11" y="-92" width="22" height="9" rx="3" fill="#fff"/>' },
+  sofia: { sk: "#f1c9a5", hair: "#d9a441", top: "#c4527a", acc: PH + '<circle cx="22" cy="-62" r="10" fill="none" stroke="#ffe9a8" stroke-width="3"/>' },
+  g1: { sk: "#f1c9a5", hair: "#2b1d14", top: "#7a63c7", acc: PH },
+  g2: { sk: "#c98e66", hair: "#a3542b", top: "#3fa7a0", acc: PH },
+  g3: { sk: "#e8b48a", hair: "#e5c26a", top: "#e0707a", acc: PH }
+};
+function at(x, y, s, k, cls, d){ return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')"><g class="' + (cls || "") + '" style="--d:' + (d || 0) + 's">' + ch(P[k]) + '</g></g>'; }
+function bub(y, t, d){ return '<g transform="translate(60 ' + y + ')"><g class="bub" style="--d:' + d + 's"><rect width="250" height="38" rx="19"/><text x="125" y="25" text-anchor="middle">' + t + '</text><text class="x" x="226" y="27">✕</text></g></g>'; }
+var cup = function(x, y){ return '<path class="cup" d="M' + x + ' ' + y + 'h26v12a13 13 0 0 1-26 0z"/>'; };
+
+var svg = '<defs><clipPath id="w"><rect x="450" y="70" width="320" height="210"/></clipPath></defs>' +
+  '<rect class="wall" width="800" height="450"/><rect class="floor" y="340" width="800" height="110"/>' +
+  '<rect class="frame" x="440" y="60" width="340" height="230" rx="6"/><rect class="sky" x="450" y="70" width="320" height="210"/><rect class="street" x="450" y="252" width="320" height="28"/>' +
+  '<polygon points="450,290 770,290 790,450 400,450" fill="#fff" opacity=".07"/>' +
+  '<rect class="shelf" x="40" y="130" width="300" height="8"/>' + cup(60, 114) + cup(110, 114) + cup(160, 114) + cup(210, 114) +
+  '<g class="clk"><circle cx="380" cy="80" r="24" fill="#f3e8d2" stroke="#3a2314" stroke-width="3"/><path d="M380 80v-17M380 80l11 6" stroke="#3a2314" stroke-width="3" stroke-linecap="round"/></g>' +
+  '<g class="sc" data-i="1"><ellipse class="glow" cx="220" cy="270" rx="120" ry="90" fill="#ffd98a" opacity="0"/></g>' +
+  '<g class="bob">' + at(220, 338, 1.2, "owner") + '</g>' +
+  '<rect class="counter" x="-10" y="300" width="540" height="75"/><rect class="ctop" x="-10" y="294" width="540" height="12"/>' +
+  '<rect class="mach" x="400" y="238" width="90" height="56" rx="6"/><rect x="415" y="252" width="26" height="14" fill="#3a2314"/><rect x="450" y="252" width="26" height="14" fill="#3a2314"/>' +
+  cup(300, 280) + '<g class="steam"><path d="M306 272q-7-9 0-17t0-15"/><path d="M313 272q-7-9 0-17t0-15"/><path d="M299 272q-7-9 0-17t0-15"/></g>' +
+  cup(90, 284) + cup(130, 284) + cup(110, 266) + '<g class="sc" data-i="1"><g class="drop">' + cup(110, 248) + '</g></g>' +
+  '<g class="sc" data-i="2">' + bub(120, "✨ un local “aesthetic”", 0.3) + bub(170, "📸 perfil con identidad", 1.2) + bub(220, "❤ más seguidores", 2.1) + bub(80, "📱 clientes por redes", 3) + '</g>' +
+  '<g class="sc" data-i="3" clip-path="url(#w)">' + at(430, 280, .6, "ruben", "wk", 0) + at(400, 280, .6, "marta", "wk", 1.6) + at(380, 280, .6, "pan", "wk", 3.2) + '</g>' +
+  '<g class="sc" data-i="4"><g class="bell"><text x="430" y="44" font-size="34" style="transform-origin:430px 30px">🔔</text></g>' +
+  at(700, 425, .95, "g1", "gl", 0) + at(740, 425, .95, "g2", "gl", 0) + at(780, 425, .95, "g3", "gl", 0) + '</g>';
+document.getElementById("svg").innerHTML = svg;
+
+var T = [
+  ["Son las cuatro de la tarde. El local huele a café tostado, a madera vieja y a granos recién molidos.", 6500],
+  ["Sos la dueña de una cafetería de especialidad. Detrás de la barra, acomodás tazas de loza gruesa.", 6500],
+  ["El mercado pide un espacio “aesthetic”, un perfil en redes con identidad, llegar a los clientes por Instagram. Vos te negás.", 8000],
+  ["Preferís lo tradicional. Tus clientes son los del barrio, los vecinos de toda la vida.", 8500],
+  ["Pero el mundo de afuera cambia. Un día suena la campanita… y un grupo de chicas se va sin pedir nada.", 7000],
+];
+
+var cur = 0, el = 0, playing = false, done = false, LAST = T.length - 1;
+var $i = function(i){ return document.getElementById(i); };
+$i("dots").innerHTML = T.map(function(){ return "<i></i>"; }).join("");
+function go(i){
+  cur = Math.max(0, Math.min(LAST, i)); el = 0; done = false;
+  document.querySelectorAll("#intro-screen .sc").forEach(function(g){ g.classList.toggle("on", +g.dataset.i === cur); });
+  $i("cap").textContent = T[cur][0];
+  $i("again").hidden = true;
+  $i("play-game-btn").textContent = "Saltar e ir al juego ➔";
+  document.querySelectorAll("#dots i").forEach(function(d, k){ d.classList.toggle("on", k === cur); });
+  $i("bar").style.width = "0";
+}
+function finish(){
+  done = true; $i("bar").style.width = "100%";
+  $i("again").hidden = false;
+  $i("play-game-btn").textContent = "Ir al juego ➔";
+}
+function nextScene(){ if (cur < LAST) go(cur + 1); else finish(); }
+function setPlay(p){
+  playing = p; $i("stage").classList.toggle("paused", !p);
+  $i("pp").textContent = p ? "⏸ Pausar" : "▶ Seguir";
+}
+setInterval(function(){
+  if (!playing || done) return;
+  el += 100; $i("bar").style.width = Math.min(100, el / T[cur][1] * 100) + "%";
+  if (el >= T[cur][1]) nextScene();
+}, 100);
+$i("prev").onclick = function(){ go(cur - 1); };
+$i("next").onclick = nextScene;
+$i("pp").onclick = function(){ setPlay(!playing); };
+$i("again").onclick = function(){ go(0); setPlay(true); };
+document.addEventListener("keydown", function(e){
+  if ($i("intro-screen").style.display !== "flex") return;
+  if (e.key === "ArrowRight") nextScene(); else if (e.key === "ArrowLeft") go(cur - 1);
+  else if (e.key === " " && !/^(BUTTON|A)$/.test(document.activeElement.tagName)){ e.preventDefault(); setPlay(!playing); }
+});
+window.Intro = {
+  start: function(){ go(0); setPlay(!matchMedia("(prefers-reduced-motion:reduce)").matches); },
+  stop: function(){ setPlay(false); }
+};
+})();
 
 // Inicialización segura garantizada
 window.addEventListener("DOMContentLoaded", function() {
   document.getElementById("start-btn").addEventListener("click", function() {
-    var startScreen = document.getElementById("start-screen");
-    var introScreen = document.getElementById("intro-screen");
-    if(startScreen) startScreen.style.display = "none";
-    if(introScreen) introScreen.style.display = "flex";
-    if(videoEl) {
-      videoEl.currentTime = 0;
-      videoEl.play().catch(function(e){ console.log("Autoplay:", e); });
-    }
+    document.getElementById("start-screen").style.display = "none";
+    document.getElementById("intro-screen").style.display = "flex";
+    Intro.start();
   });
-
   document.getElementById("play-game-btn").addEventListener("click", function() {
-    if(videoEl) videoEl.pause();
-    var introScreen = document.getElementById("intro-screen");
-    if(introScreen) introScreen.style.display = "none";
+    Intro.stop();
+    document.getElementById("intro-screen").style.display = "none";
     resize();
     newGame();
   });
@@ -291,7 +437,7 @@ function newGame(){
   gen(); pr = 0; pc = 0; mv = null; held = []; branch = null; pend = 0; modalOn = false; over = false; collected = 0;
   var modal = document.getElementById("modal");
   if(modal) modal.hidden = true;
-  setMsg("Movete con las flechas y encontrá los 4 granos de café.");
+  setMsg(ctrlHint());
   hud();
 }
 
@@ -299,7 +445,7 @@ function hud(){ document.getElementById("hud").textContent = "Granos " + collect
 function setMsg(t){ document.getElementById("msg").textContent = t; }
 
 function resize(){
-  var coarse = matchMedia("(pointer:coarse)").matches;
+  var coarse = isTouch();
   S = Math.max(240, Math.min(window.innerWidth - 30, window.innerHeight - (coarse ? 280 : 160), 720));
   var dpr = window.devicePixelRatio || 1;
   cv.style.width = cv.style.height = S + "px"; cv.width = cv.height = Math.round(S * dpr);
@@ -329,7 +475,7 @@ function arrive(){
 }
 
 function show(tag, text, opts, bad){
-  modalOn = true; held = [];
+  modalOn = true; held = []; want = -1; sw = null; swDir = -1;
   var m = document.getElementById("modal"); m.hidden = false;
   m.firstElementChild.className = "card" + (bad ? " bad" : "");
   document.getElementById("mtag").textContent = tag;
@@ -370,11 +516,19 @@ function ending(n){
   show("Resultado final " + n, ENDS[n], [["Jugar de nuevo", newGame]], n === 1);
   var x = document.getElementById("mextra");
   if (n === 1){
-    x.innerHTML = '<div class="extra"><p>Te ofrecen 1 mes gratis en la plataforma.</p><button class="btn" id="free-btn" type="button">Aceptar</button></div>';
-    document.getElementById("free-btn").onclick = function(){ this.parentNode.querySelector("p").textContent = "¡Activado!"; this.remove(); };
+    x.innerHTML = '<div class="extra"><p></p><button class="btn" id="free-btn" type="button">Aceptar el mes gratis</button></div>';
+    var p = x.querySelector("p"), b = document.getElementById("free-btn");
+    p.textContent = "Antes de bajar la persiana, te ofrecen una salida: 1 mes gratis en la plataforma recomendadora de cafeterías, para que más gente te encuentre.";
+    b.onclick = function(){ p.textContent = "¡Mes gratis activado! Tu cafetería ya aparece en la plataforma recomendadora de cafeterías."; b.remove(); };
   } else {
-    x.innerHTML = '<div class="extra"><div class="qr" id="qr"></div><p>Escaneá el QR.</p></div>';
-    try { new QRCode(document.getElementById("qr"), { text: NEXT_STORY_URL, width: 130, height: 130 }); } catch (e){}
+    x.innerHTML = '<div class="extra"><h2>¿Es este el final?</h2><div class="qr" id="qr"></div><p>Escaneá el QR para seguir con la siguiente historia.</p></div>';
+    var q = document.getElementById("qr");
+    if (NEXT_STORY_QR_IMG){
+      var im = document.createElement("img"); im.src = NEXT_STORY_QR_IMG; im.alt = "QR a la siguiente historia"; im.width = 140; im.height = 140; q.appendChild(im);
+    } else {
+      try { new QRCode(q, { text: NEXT_STORY_URL, width: 140, height: 140, colorDark: "#000000", colorLight: "#ffffff" }); }
+      catch (e){ q.textContent = "QR próximamente"; }
+    }
   }
 }
 
@@ -384,7 +538,11 @@ function frame(t){
   var isStartVisible = document.getElementById("start-screen").style.display !== 'none';
   
   if (!modalOn && !over && !isIntroVisible && !isStartVisible){
-    if (!mv && held.length) tryMove(held[held.length-1]);
+    if (!mv){
+      var wd = held.length ? held[held.length-1] : want;
+      if (wd >= 0) tryMove(wd);
+      want = -1;
+    }
     if (mv){ mv.t += dt / 130; if (mv.t >= 1) arrive(); }
   }
   draw(t);
@@ -439,10 +597,34 @@ document.addEventListener("keyup", function(e){
 });
 document.querySelectorAll(".pad button").forEach(function(b){
   var d = +b.dataset.d;
-  b.addEventListener("pointerdown", function(e){ e.preventDefault(); if (held.indexOf(d) < 0) held.push(d); });
+  b.addEventListener("pointerdown", function(e){ e.preventDefault(); want = d; if (held.indexOf(d) < 0) held.push(d); });
   ["pointerup","pointerleave","pointercancel"].forEach(function(n){ b.addEventListener(n, function(){ held = held.filter(function(x){ return x !== d; }); }); });
 });
 document.getElementById("restart").onclick = newGame;
+
+// Deslizar sobre el laberinto (solo táctil/lápiz; el mouse no mueve al personaje)
+function setSwipe(d){
+  held = held.filter(function(x){ return x !== swDir; });
+  swDir = d;
+  if (d >= 0){ held.push(d); want = d; }
+}
+cv.addEventListener("pointerdown", function(e){
+  if (e.pointerType === "mouse" || modalOn || over) return;
+  e.preventDefault();
+  sw = { x: e.clientX, y: e.clientY, id: e.pointerId };
+  try { cv.setPointerCapture(e.pointerId); } catch (err) {}
+});
+cv.addEventListener("pointermove", function(e){
+  if (!sw || e.pointerId !== sw.id || modalOn || over) return;
+  var dx = e.clientX - sw.x, dy = e.clientY - sw.y, T = Math.max(14, cell * 0.3);
+  if (Math.abs(dx) < T && Math.abs(dy) < T) return;
+  setSwipe(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 1 : 3) : (dy > 0 ? 2 : 0));
+  sw.x = e.clientX; sw.y = e.clientY;
+});
+["pointerup", "pointercancel"].forEach(function(n){
+  cv.addEventListener(n, function(){ sw = null; setSwipe(-1); });
+});
+window.addEventListener("orientationchange", function(){ setTimeout(resize, 250); });
 window.addEventListener("resize", resize);
 
 gen();
